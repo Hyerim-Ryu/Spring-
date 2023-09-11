@@ -1,0 +1,25 @@
+package kr.spring.entity;
+
+import lombok.Data;
+
+@Data
+public class Board {
+	
+	private int id; // 번호
+	private String title; // 제목
+	private String content; // 내용
+	private String writer; // 작성자
+	private String indate; // 작성일
+	private int count; // 조회수
+	
+	public Board(int idx, String title, String content, String writer, String indate, int count) {
+		this.id = idx;
+		this.title = title;
+		this.content = content;
+		this.writer = writer;
+		this.indate = indate;
+		this.count = count;
+	}
+	
+	
+}

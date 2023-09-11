@@ -1,0 +1,53 @@
+package kr.spring.controller;
+
+import java.util.ArrayList;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import kr.spring.entity.Board;
+
+@Controller // 현재 클래스를 핸들러맵핑이 찾기 위해 컨트롤러로 등록하는 부분
+public class BoardController {
+	
+//	@RequestMapping("/") // 요청 url이 들어왔을 때 아래 기능을 수행하겠다
+//	public String home() {
+//		System.out.println("홈 기능 수행");
+//		return "boardList";
+//	}
+	
+	@RequestMapping("/boardList.do") // 요청 url이 들어왔을 때 아래 기능을 수행하겠다
+	public String boardList(Model model) {
+		System.out.println("게시판목록보기 기능수행");
+		
+		// 게시글 정보 가져오기
+		// 한 개의 게시글은 - 번호, 제목, 내용, 작성자, 작성일, 조회수
+		Board b1 = new Board(1, "혜림존예", "류혜림존녜", "송태양", "2023-09-05", 105);
+		Board b2 = new Board(2, "언니", "언니언제와", "달천이", "2023-09-05", 10);
+		Board b3 = new Board(3, "해리마", "머해", "송태양", "2023-09-05", 103);
+		Board b4 = new Board(4, "언니", "오늘머해", "달천이", "2023-09-05", 107);
+		Board b5 = new Board(5, "엄마", "안녕", "너부리", "2023-09-05", 109);
+		Board b6 = new Board(6, "혜리마", "안녕", "너부리", "2023-09-05", 12);
+		Board b7 = new Board(7, "류해림", "여신님", "송태양", "2023-09-05", 24);
+		Board b8 = new Board(8, "해리마", "배고파", "송태양", "2023-09-05", 333);
+		Board b9 = new Board(9, "혜리마", "토스트해줘", "송태양", "2023-09-05", 4);
+		Board b10 = new Board(10, "혜리망", "머해", "송태양", "2023-09-05", 7);
+		
+		ArrayList<Board> list = new ArrayList<Board>();
+		list.add(b1);
+		list.add(b2);
+		list.add(b3);
+		list.add(b4);
+		list.add(b5);
+		list.add(b6);
+		list.add(b7);
+		list.add(b8);
+		list.add(b9);
+		list.add(b10);
+		
+		model.addAttribute("list", list);
+		
+		return "boardList";
+	}
+}
