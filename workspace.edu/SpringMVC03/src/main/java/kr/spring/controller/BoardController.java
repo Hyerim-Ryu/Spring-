@@ -20,10 +20,10 @@ public class BoardController {
 	@Autowired
 	private BoardMapper mapper; // MyBatis 한테 JDBC 실행하게 요청하는 객체
 	
-	@RequestMapping("/") // 요청 url이 들어왔을 때 아래 기능을 수행하겠다
+	@RequestMapping("/boardMain.do") // 요청 url이 들어왔을 때 아래 기능을 수행하겠다
 	public String home() {
-		System.out.println("홈 기능 수행");
-		return "main";
+		System.out.println("게시판 페이지 이동 기능 수행");
+		return "board/main";
 	}
 	
 	
