@@ -45,4 +45,6 @@ VALUES('admin','1234','관리자',20,'여자','admin@gamil.com','');
 
 SELECT * FROM MEMBER ; 
 
-DELETE FROM MEMBER ; 
+DELETE FROM MEMBER WHERE MEMIDX = 2;
+
+UPDATE MEMBER SET MEMPROFILE = '' WHERE MEMID = 'song11' ; 

@@ -21,5 +21,9 @@ public interface MemberMapper {
 	public Member login(Member m);
 
 	public int update(Member m);
+
+	public void profileUpdate(Member mvo);
+
+	public Member getMember(String memID);
 	
 }

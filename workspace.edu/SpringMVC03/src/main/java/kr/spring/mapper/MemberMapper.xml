@@ -7,8 +7,8 @@
 	</select>
 	
 	<insert id="join" parameterType="kr.spring.entity.Member">
-		INSERT INTO MEMBER(MEMID, MEMPASSWORD, MEMNAME, MEMAGE, MEMGENDER, MEMEMAIL) 
-		VALUES(#{memID}, #{memPassword}, #{memName}, #{memAge}, #{memGender}, #{memEmail})
+		INSERT INTO MEMBER(MEMID, MEMPASSWORD, MEMNAME, MEMAGE, MEMGENDER, MEMEMAIL, MEMPROFILE) 
+		VALUES(#{memID}, #{memPassword}, #{memName}, #{memAge}, #{memGender}, #{memEmail}, #{memProfile})
 	</insert>
 	
 	<select id="login" parameterType="kr.spring.entity.Member" resultType="kr.spring.entity.Member">
@@ -20,4 +20,11 @@
 						  MEMGENDER = #{memGender}, MEMEMAIL = #{memEmail} WHERE MEMID = #{memID}
 	</update>
 	
+	<update id="profileUpdate" parameterType="kr.spring.entity.Member">
+		UPDATE MEMBER SET MEMPROFILE = #{memProfile} WHERE MEMID = #{memID}
+	</update>
+	
+	<select id="getMember" parameterType="String" resultType="kr.spring.entity.Member">
+		SELECT * FROM MEMBER WHERE MEMID = #{memID}
+	</select>
 </mapper>

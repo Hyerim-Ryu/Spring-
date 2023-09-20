@@ -1,5 +1,6 @@
 package kr.spring.controller;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,44 +42,49 @@ public class MemberController {
 		}
 	}
 	
-	@RequestMapping("/join.do")
-	public String join(Member m, RedirectAttributes rttr, HttpSession session) {
-		System.out.println("회원가입 기능요청");
-		
-		// 유효성 검사
-		if(m.getMemID() == null || m.getMemID().equals("") || 
-				m.getMemPassword() == null || m.getMemPassword().equals("") ||
-				m.getMemName() == null || m.getMemName().equals("") ||
-				m.getMemAge() == 0 ||
-				m.getMemEmail() == null || m.getMemEmail().equals("")) {
-			// 회원가입을 할 수 없다 -> 하나라도 누락되어 있기 때문에
-			// 실패시 joinForm.do로 msgType과 msg 내용을 보내야함
-			// msgType : 실패메세지, msg : "모든 내용을 입력하세요"
-			// RedirectAttributes - 리다이렉트 방식으로 이동할 때 보낼 데이터를 저장하는 객체
-			
-			rttr.addFlashAttribute("msgType", "실패메세지");
-			rttr.addFlashAttribute("msg", "모든 내용을 입력하세요.");
-			
-			return "redirect:/joinForm.do";
-		}else {
-			// 회원가입을 시도할 수 있는 부분
-			m.setMemProfile("");
-			int cnt = mapper.join(m);
-			if(cnt == 1) {
-				System.out.println("회원가입 성공!");
-				rttr.addFlashAttribute("msgType", "성공메세지");
-				rttr.addFlashAttribute("msg", "회원가입에 성공했습니다.");
-				// 회원가입 성공 시 로그인 처리까지 시키기
-				session.setAttribute("mvo", m);
-				return "redirect:/";
-			}else {
-				System.out.println("회원가입 실패");
-				rttr.addFlashAttribute("msgType", "실패메세지");
-				rttr.addFlashAttribute("msg", "회원가입에 실패했습니다.");
-				return "redirect:joinForm.do";
-			}
-		}
-	}
+	 @RequestMapping("/join.do")
+	   public String join(Member m, RedirectAttributes rttr, HttpSession session) {
+	      System.out.println("회원가입 기능요청");
+	      
+	      // 유효성 검사
+	      if(m.getMemID() == null || m.getMemID().equals("") || 
+	         m.getMemPassword() == null || m.getMemPassword().equals("") ||
+	         m.getMemName() == null || m.getMemName().equals("") ||
+	         m.getMemAge() == 0 ||
+	         m.getMemEmail() == null || m.getMemEmail().equals("")
+	         ) {
+	         // 하나라도 누락되어 있어 회원가입을 할 수 없는 상태. 
+	         
+	         // 실패 시 joinForm.do로 msgType과 msg내용을 보내야함.
+	         // msgType : 실패메세지, msg : 모든 내용을 입력하세요
+	         // RedirectAttributes - 리다이렉트 방식으로 이동할 때 보낼 데이터를 저장하는 객체
+	         rttr.addFlashAttribute("msgType", "실패메세지");
+	         rttr.addFlashAttribute("msg", "모든 내용을 입력하세요.");
+	         
+	         return "redirect:/joinForm.do";
+	      }else {
+	         // 회원가입을 시도할 수 있는 상태
+	         m.setMemProfile("");
+	         int cnt = mapper.join(m);
+	         
+	         if(cnt == 1) {
+	            System.out.println("회원가입 성공!");
+	            rttr.addFlashAttribute("msgType", "성공메세지");
+	            rttr.addFlashAttribute("msg", "회원가입에 성공했습니다.");
+	            // 회원가입 성공 시 로그인 처리까지 시키기
+	            session.setAttribute("mvo", m);
+	            return "redirect:/";
+	         }else {
+	            System.out.println("회원가입 실패...");
+	            rttr.addFlashAttribute("msgType", "실패메세지");
+	            rttr.addFlashAttribute("msg", "회원가입에 실패했습니다.");
+	            
+	            return "redirect:/joinForm.do";
+	         }
+	      }
+	      
+	      
+	   }
 	
 	@RequestMapping("/logout.do")
 	public String logout(HttpSession session) {
@@ -135,7 +141,7 @@ public class MemberController {
 			}else {
 				rttr.addFlashAttribute("msgType", "실패메세지");
 				rttr.addFlashAttribute("msg", "회원정보 수정에 실패했습니다.");
-				return "redirect:updateForm.do";
+				return "redirect:/updateForm.do";
 			}
 		}
 	}
@@ -146,7 +152,7 @@ public class MemberController {
 	}
 	
 	@RequestMapping("/imageUpdate.do")
-	public String imageUpdate(HttpServletRequest request) {
+	public String imageUpdate(HttpServletRequest request, HttpSession session, RedirectAttributes rttr) {
 		
 		// 파일 업로드를 할 수 있게 도와주는 객체 (cos.jar)
 		// 파일 업로드를 할 수 있게 도와주는 MultipartRequest 객체를 생성하기 위해서는
@@ -158,12 +164,56 @@ public class MemberController {
 		// 이미지 최대크기
 		int fileMaxSize = 10 * 1024 * 1024 * 10;
 		
+		// 기존 해당 프로필 이미지 삭제
+		// - 로그인 한 사람의 프로필 값을 가져와야 함
+		String memID = ((Member)session.getAttribute("mvo")).getMemID();
+		
+		// getMember 메소드는 memID와 일치하는 회원의 정보 (Member)를 가져온다
+		String oldImg = mapper.getMember(memID).getMemProfile();
+		
+		// 기존의 프로필 사진 삭제
+		File oldFile = new File(savePath+"/"+oldImg);
+		if(oldFile.exists()) {
+			oldFile.delete();
+		}
+		
 		try {
 			multi = new MultipartRequest(request, savePath, fileMaxSize, "UTF-8", new DefaultFileRenamePolicy());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		return null;
+		// 내가 업로드한 파일 가져오기
+		File file = multi.getFile("memProfile");
+		
+		if(file != null) { // 업로드가 된 상태
+			//System.out.println(file.getName());
+			String ext = file.getName().substring(file.getName().lastIndexOf(".") + 1);
+			ext = ext.toUpperCase();
+			
+			if(!(ext.equals("PNG") || ext.equals("GIF") || ext.equals("JPG"))) {
+				if(file.exists()) {
+					file.delete();
+					rttr.addFlashAttribute("msgType", "실패메세지");
+					rttr.addFlashAttribute("msg", "이미지 파일만 가능합니다.(PNG, JPG, GIF)");
+					return "redirect:/imageForm.do";
+				}
+			}
+		}
+				
+		// 업로드한 파일의 이름을 가져오는 코드
+		String newProfile = multi.getFilesystemName("memProfile");
+		Member mvo = new Member();
+		mvo.setMemID(memID);
+		mvo.setMemProfile(newProfile);
+		mapper.profileUpdate(mvo);
+		
+		// 사진 업데이트 후 수정된 회원정보를 다시 가져와서 세션에 담기
+		Member m = mapper.getMember(memID);
+		session.setAttribute("mvo", m);
+		
+		rttr.addFlashAttribute("msgType", "성공메세지");
+		rttr.addFlashAttribute("msg", "이미지 변경이 성공했습니다.");
+		return "redirect:/";
 	}
 }
